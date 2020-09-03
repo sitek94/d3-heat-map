@@ -1,0 +1,23 @@
+:root {
+  --green: #0F8C79;
+  --green-light: #6BBBA1;
+  --red: #BD2D28;
+  --red-light: #E25A42;
+
+  --white: #fff;
+  --gray-10: #F5F3F2;
+  --gray-15: #e4e4e3;
+  --gray-20: #C0C0BB;
+  --gray-30: #8E8883;
+  --gray-40: #635F5D;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;  
+}
