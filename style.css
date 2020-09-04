@@ -31,14 +31,6 @@ svg {
   margin: 0 auto;
 }
 
-body {
-  margin: 0px;
-  overflow: hidden;
-}
-
-circle {
-  fill: steelblue;
-}
 
 .line-path {
   fill: none;

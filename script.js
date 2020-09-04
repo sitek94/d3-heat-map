@@ -26,22 +26,7 @@ const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 const render2 = sourceData => {
 
-  const data = sourceData.monthlyVariance;
-console.log(data);
-  const xValue = d => d.year;
-  const xAxisLabel = 'Time';
-  
-  const yValue = d => d.month;
-  
-  const xScale = scaleLinear()
-    .domain(extent(data, xValue))
-    .range([0, innerWidth]);
-
-  
-  const yScale = scaleOrdinal()
-    .domain(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
-    .range([1,2,3,4,5]);
-
+ 
 
   
   
@@ -69,9 +54,6 @@ const render = (sourceData) => {
   const xValue = (d) => d.year;
   const yValue = (d) => d.month;
 
-  const xMin = min(data, xValue);
-  const xMax = max(data, xValue);
-
   // Margins 
   const margin = { top: 90, right: 20, bottom: 80, left: 100 };
 
@@ -96,14 +78,13 @@ const render = (sourceData) => {
     .tickPadding(15);
 
   // y scale
-  const yScale = scaleLinear()
-    .domain([0, max(data, yValue)])
+  const yScale = scaleTime()
+    .domain(extent(data, yValue))
     .range([innerHeight, 0])
     .nice();
 
   // y axis
   const yAxis = axisLeft(yScale)
-    //.tickFormat(yAxisTickFormat)
     .tickSize(-innerWidth)
 
   // Create group container inside svg
@@ -160,11 +141,6 @@ const render = (sourceData) => {
 json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json')
   .then(data => {
     console.log(data);
-
-    data.monthlyVariance.forEach(d => {
-      d.month = months[d.month - 1]
-    });
-
    
 
     render(data);
