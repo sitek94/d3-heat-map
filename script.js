@@ -21,8 +21,6 @@ const svg = select('svg')
   .attr('height', height)
   .attr('width', width);
 
-
-
 const color = {
   red400: '#d73027',
   red300: '#f46d43',
@@ -51,29 +49,27 @@ const render = (sourceData) => {
   const vValue = d => d.variance;
 
   // Color object 
-  const color = {
-    red400: '#d73027',
-    red300: '#f46d43',
-    red200: '#fdae61',
-    red100: '#fee090',
-    neutral: '#ffffbf',
-    blue100: '#e0f3f8',
-    blue200: '#abd9e9',
-    blue300: '#74add1',
-    blue400: '#4575b4',
-  }
-  const colorsLength = Object.keys(color).length;
-  const colorValues = Object.values(color);
+  const colors = [
+    '#d73027', // red - very dark
+    '#f46d43', // red - dark
+    '#fdae61', // red - light
+    '#fee090', // red - very light
+    '#ffffbf', // Neutral color - whitish
+    '#e0f3f8', // blue - very light
+    '#abd9e9', // blue - Light
+    '#74add1', // blue - dark
+    '#4575b4', // blue - very dark
+  ]
 
   // Variance constants 
   const minVariance = min(data, vValue);
   const maxVariance = max(data, vValue);
   const varianceAmplitude = maxVariance - minVariance;
-  const varianceStep = varianceAmplitude / colorsLength;
+  const varianceStep = varianceAmplitude / colors.length;
 
   // Construct variance treshold
   const varianceTreshold = [];
-  for (let i = 1; i < colorsLength; i++) {
+  for (let i = 1; i < colors.length; i++) {
     // Calculate and round the value
     const value = minVariance + (varianceStep * i);
     const roundedValue = Math.round(value * 1000) / 1000;
@@ -84,10 +80,10 @@ const render = (sourceData) => {
   // Color scale
   const colorScale = scaleThreshold()
   .domain(varianceTreshold)
-  .range(colorValues);
+  .range(colors);
 
   // Margins 
-  const margin = { top: 90, right: 20, bottom: 80, left: 120 };
+  const margin = { top: 90, right: 20, bottom: 150, left: 120 };
 
   // Inner dimensions
   const innerWidth = width - margin.left - margin.right;
@@ -128,13 +124,15 @@ const render = (sourceData) => {
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`);
 
-  const legendContainer = svg.append('g')
-    .attr('transform', `translate(1200,0)`)
+  // Append legend
+  svg.append('g')
+    .attr('transform', `translate(120,${height - 100})`)
     .call(colorLegend, {
-      colorScale
+      colorScale,
+      treshold: varianceTreshold,
+      legendHeight: 30,
+      legendWidth: 300
     });
-
- 
 
   // Append y axis
   container.append('g').call(yAxis)
@@ -179,41 +177,46 @@ const render = (sourceData) => {
 
 const colorLegend = (selection, props) => {
   const {
-    colorScale
+    colorScale,
+    treshold,
+    legendWidth,
+    legendHeight,
   } = props;
 
+  // Bar dimensions
+  const barHeight = legendHeight;
+  const barWidth = legendWidth / treshold.length;
+  
+  // X scale
   const xScale = d3.scaleLinear()
-  .domain([0, 9])
-  .range([0, 240]);
+  .domain(extent(treshold))
+  .range([0, legendWidth]);
 
-  const xAxis = d3.axisBottom(xScale)
-    .tickSize(13)
-    .tickValues(colorScale.domain())
+  // X axis
+  const xAxis = axisBottom(xScale)
+    
 
+  // Append legend container to provided selection element
   const container = selection.append("g").call(xAxis);
 
-  container.select(".domain")
-    .remove();
+  // Remove domain line
+  container.selectAll(".domain, .tick").remove();
 
   container.selectAll("rect")
-  .data(colorScale.range().map(function(color) {
-    var d = colorScale.invertExtent(color);
-    if (d[0] == null) d[0] = xScale.domain()[0];
-    if (d[1] == null) d[1] = xScale.domain()[1];
-    return d;
-  }))
-  .enter().insert("rect", ".tick")
-    .attr("height", 8)
-    .attr("x", function(d) { return xScale(d[0]); })
-    .attr("width", 20)
-    .attr("fill", function(d) { return colorScale(d[0]); });
+    .data(treshold)
+  .enter()
+    .append('rect')
+    .attr("height", barHeight)
+    .attr("x", (d, i) => i * barWidth)
+    .attr("width", barWidth)
+    .attr("fill", colorScale);
 
-  container.append("text")
-    .attr("fill", "#000")
-    .attr("font-weight", "bold")
-    .attr("text-anchor", "start")
-    .attr("y", -6)
-    .text("Percentage of stops that involved force");
+  // container.append("text")
+  //   .attr("fill", "#000")
+  //   .attr("font-weight", "bold")
+  //   .attr("text-anchor", "start")
+  //   .attr("y", -6)
+  //   .text("Percentage of stops that involved force");
 }
 
 
