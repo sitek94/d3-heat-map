@@ -62,10 +62,10 @@ const render = (sourceData) => {
   ]
 
   // Variance constants 
-  const minVariance = min(data, vValue);
-  const maxVariance = max(data, vValue);
+  const [minVariance, maxVariance] = extent(data, vValue);
   const varianceAmplitude = maxVariance - minVariance;
   const varianceStep = varianceAmplitude / colors.length;
+  const varianceDomain = [minVariance, maxVariance];
 
   // Construct variance treshold
   const varianceTreshold = [];
@@ -76,11 +76,17 @@ const render = (sourceData) => {
     // Push the value to treshold array
     varianceTreshold.push(roundedValue);
   }
+  
 
   // Color scale
   const colorScale = scaleThreshold()
   .domain(varianceTreshold)
   .range(colors);
+
+  console.log(colors);
+  console.log(varianceTreshold);
+  console.log(colorScale(minVariance));
+  console.log(colorScale(maxVariance));
 
   // Margins 
   const margin = { top: 90, right: 20, bottom: 150, left: 120 };
@@ -131,7 +137,8 @@ const render = (sourceData) => {
       colorScale,
       treshold: varianceTreshold,
       legendHeight: 30,
-      legendWidth: 300
+      legendWidth: 300,
+      xDomain: varianceDomain
     });
 
   // Append y axis
@@ -178,38 +185,43 @@ const render = (sourceData) => {
 const colorLegend = (selection, props) => {
   const {
     colorScale,
-    treshold,
     legendWidth,
     legendHeight,
+    xDomain
   } = props;
 
-  // Bar dimensions
-  const barHeight = legendHeight;
-  const barWidth = legendWidth / treshold.length;
-  
   // X scale
   const xScale = d3.scaleLinear()
-  .domain(extent(treshold))
+  .domain(xDomain)
   .range([0, legendWidth]);
 
   // X axis
   const xAxis = axisBottom(xScale)
-    
+    .tickSize(13)
+    .tickValues(colorScale.domain())
+    .tickFormat(format('.2f'))
+    .tickPadding(30)
 
   // Append legend container to provided selection element
   const container = selection.append("g").call(xAxis);
 
   // Remove domain line
-  container.selectAll(".domain, .tick").remove();
+  container.select(".domain").remove();
 
   container.selectAll("rect")
-    .data(treshold)
-  .enter()
-    .append('rect')
-    .attr("height", barHeight)
-    .attr("x", (d, i) => i * barWidth)
-    .attr("width", barWidth)
-    .attr("fill", colorScale);
+    .data(colorScale.range().map(function(color) {
+      var d = colorScale.invertExtent(color);
+      if (d[0] == null) d[0] = xScale.domain()[0];
+      if (d[1] == null) d[1] = xScale.domain()[1];
+      return d;
+    }))
+  .enter().insert("rect", ".tick")
+    .attr("height", 8)
+    .attr("x", function(d) { 
+      console.log(d);
+      return xScale(d[0]); })
+    .attr("width", function(d) { return xScale(d[1]) - xScale(d[0]); })
+    .attr("fill", function(d) { return colorScale(d[0]); });
 
   // container.append("text")
   //   .attr("fill", "#000")
