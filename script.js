@@ -1,6 +1,7 @@
 const {
   json,
   select,
+  scaleBand,
   scaleOrdinal,
   scaleLinear,
   scaleTime,
@@ -9,6 +10,7 @@ const {
   extent,
   format,
   timeParse,
+  timeFormat,
   min,
   max,
 } = d3;
@@ -37,11 +39,19 @@ const render = (sourceData) => {
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
+  // Bar dimensions
   const barWidth = innerWidth / data.length;
   const barHeight = innerHeight / 12;
 
-  const parseMonth = timeParse('%m')
-  console.log(parseMonth(2));
+  
+  
+
+  const yAxisTickFormat = date => {
+    const parseMonth = timeParse('%m');
+    const parsedDate = parseMonth(date);
+    console.log(date);
+    return timeFormat('%B')(parsedDate);
+  }
 
   // x scale
   const xScale = scaleTime()
@@ -52,18 +62,17 @@ const render = (sourceData) => {
   const xAxis = axisBottom(xScale)
     .tickFormat(format(''))
     //.tickSize(-innerHeight)
-    .tickPadding(15);
+    .tickPadding(15);  
 
   // y scale
-  const yScale = scaleTime()
-    .domain([0, 12])
-    .range([innerHeight, 0])
-    .nice();
+  const yScale = scaleBand()
+    .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+    .range([innerHeight, 0]);
 
   // y axis
   const yAxis = axisLeft(yScale)
-    .ticks(12)
-    .tickSize(-innerWidth)
+    .tickFormat(yAxisTickFormat)
+    .ticks(13)
 
   // Create group container inside svg
   const container = svg
@@ -94,9 +103,6 @@ const render = (sourceData) => {
     .attr('y', -50)
     .attr('transform', 'rotate(-90)')
     .text('GDP in Billions of Dollars');
-    
-  // Remove domain line
-  yAxisG.select('.domain').remove();
 
   // Append x axis
   container.append('g').call(xAxis)
