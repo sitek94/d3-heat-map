@@ -21,30 +21,6 @@ const svg = select('svg')
   .attr('width', width);
     
 
-const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-
-const render2 = sourceData => {
-
- 
-
-  
-  
-  
-  const yAxis = axisLeft(yScale)
-    .tickSize(-innerWidth)
-    .tickPadding(10);
-
-  
-  xAxisG.append('text')
-      .attr('class', 'axis-label')
-      .attr('y', 80)
-      .attr('x', innerWidth / 2)
-      .attr('fill', 'black')
-      .text(xAxisLabel);
- 
-};
-
 // Render function
 const render = (sourceData) => {
 
@@ -60,8 +36,9 @@ const render = (sourceData) => {
   // Inner dimensions
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
-  
+
   const barWidth = innerWidth / data.length;
+  const barHeight = innerHeight / 12;
 
   const parseMonth = timeParse('%m')
   console.log(parseMonth(2));
@@ -74,17 +51,18 @@ const render = (sourceData) => {
   // x axis
   const xAxis = axisBottom(xScale)
     .tickFormat(format(''))
-    .tickSize(-innerHeight)
+    //.tickSize(-innerHeight)
     .tickPadding(15);
 
   // y scale
   const yScale = scaleTime()
-    .domain(extent(data, yValue))
+    .domain([0, 12])
     .range([innerHeight, 0])
     .nice();
 
   // y axis
   const yAxis = axisLeft(yScale)
+    .ticks(12)
     .tickSize(-innerWidth)
 
   // Create group container inside svg
@@ -125,23 +103,30 @@ const render = (sourceData) => {
     .attr('transform', `translate(0,${innerHeight})`)
     .attr('id', 'x-axis');
 
+  
+
   // Append bars
   container.selectAll('rect').data(data).enter()
     .append('rect')
       .attr('class', 'bar')
       // Dimensions
       .attr('width', barWidth)
-      .attr('height', (d) => yScale(0) - yScale(yValue(d)))
+      .attr('height', barHeight)
       // Position
       .attr('x', (d) => xScale(xValue(d)))
-      .attr('y', (d) => yScale(yValue(d)))
+      .attr('y', d => yValue(d) * barHeight)
 };
 
 // Fetch data
 json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json')
   .then(data => {
-    console.log(data);
+    
    
+    data.monthlyVariance.forEach(d => {
+      d.month--;
+    })
+
+    console.log(data);
 
     render(data);
   })
