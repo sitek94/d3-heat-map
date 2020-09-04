@@ -2,8 +2,7 @@ const {
   json,
   select,
   scaleBand,
-  scaleOrdinal,
-  scaleLinear,
+  scaleThreshold,
   scaleTime,
   axisBottom,
   axisLeft,
@@ -21,16 +20,71 @@ const height = document.documentElement.clientHeight;
 const svg = select('svg')
   .attr('height', height)
   .attr('width', width);
-    
+
+
+
+const color = {
+  red400: '#d73027',
+  red300: '#f46d43',
+  red200: '#fdae61',
+  red100: '#fee090',
+  neutral: '#ffffbf',
+  blue100: '#e0f3f8',
+  blue200: '#abd9e9',
+  blue300: '#74add1',
+  blue400: '#4575b4',
+}
 
 // Render function
 const render = (sourceData) => {
 
   const data = sourceData.monthlyVariance;
 
+  const title = 'Monthly Global Land-Surface Temperature';
+  const description = '1753 - 2015: base temperature 8.66℃';
+
+  const { baseTemperature } = sourceData;
+
   // Value accessors
-  const xValue = (d) => d.year;
-  const yValue = (d) => d.month;
+  const xValue = d => d.year;
+  const yValue = d => d.month;
+  const vValue = d => d.variance;
+
+  // Color object 
+  const color = {
+    red400: '#d73027',
+    red300: '#f46d43',
+    red200: '#fdae61',
+    red100: '#fee090',
+    neutral: '#ffffbf',
+    blue100: '#e0f3f8',
+    blue200: '#abd9e9',
+    blue300: '#74add1',
+    blue400: '#4575b4',
+  }
+  const colorsLength = Object.keys(color).length;
+  const colorValues = Object.values(color);
+
+  // Variance constants 
+  const minVariance = min(data, vValue);
+  const maxVariance = max(data, vValue);
+  const varianceAmplitude = maxVariance - minVariance;
+  const varianceStep = varianceAmplitude / colorsLength;
+
+  // Construct variance treshold
+  const varianceTreshold = [];
+  for (let i = 1; i < colorsLength; i++) {
+    // Calculate and round the value
+    const value = minVariance + (varianceStep * i);
+    const roundedValue = Math.round(value * 1000) / 1000;
+    // Push the value to treshold array
+    varianceTreshold.push(roundedValue);
+  }
+
+  // Color scale
+  const colorScale = scaleThreshold()
+  .domain(varianceTreshold)
+  .range(colorValues);
 
   // Margins 
   const margin = { top: 90, right: 20, bottom: 80, left: 120 };
@@ -103,28 +157,26 @@ const render = (sourceData) => {
     // Title
   container.append('text')
   .attr('id', 'title')
-  .attr('class', 'description')
+  .attr('class', 'title')
   .attr('y', -60)
-  .text('Monthly Global Land-Surface Temperature');
+  .text(title);
 
   // Description
   container.append('text')
     .attr('id', 'description')
     .attr('class', 'description')
     .attr('y', -30)
-    .text('1753 - 2015: base temperature 8.66℃');
+    .text(description);
 };
 
 // Fetch data
 json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json')
   .then(data => {
     
-   
     data.monthlyVariance.forEach(d => {
       d.month--;
     })
 
-    console.log(data);
-
     render(data);
   })
+  .catch(error => console.log("Error while loading the data."));

@@ -28,7 +28,7 @@ body {
 
 svg {
   display: block;
-  margin: 0 auto;
+  margin: 10px auto;
 }
 
 .cell {
@@ -67,6 +67,12 @@ text {
 }
 
 .title {
-  font-size: 3.7em;
-  fill: #635F5D;
+  font-size: 1.8em;
+  fill: var(--gray-40);
+
+}
+
+.description {
+  font-size: 1.5em;
+  fill: var(--gray-30);
 }
