@@ -31,11 +31,11 @@ svg {
   margin: 0 auto;
 }
 
-rect {
+.cell {
   fill: cornflowerblue;
 }
 
-rect:hover {
+.cell:hover {
   fill: crimson;
 }
 
