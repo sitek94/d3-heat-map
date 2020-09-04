@@ -10,8 +10,6 @@ const {
   format,
   timeParse,
   timeFormat,
-  min,
-  max,
 } = d3;
 
 const url = 'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json';
@@ -22,18 +20,6 @@ const height = document.documentElement.clientHeight;
 const svg = select('svg')
   .attr('height', height)
   .attr('width', width);
-
-const color = {
-  red400: '#d73027',
-  red300: '#f46d43',
-  red200: '#fdae61',
-  red100: '#fee090',
-  neutral: '#ffffbf',
-  blue100: '#e0f3f8',
-  blue200: '#abd9e9',
-  blue300: '#74add1',
-  blue400: '#4575b4',
-}
 
 // Render function
 const render = (sourceData) => {
@@ -84,6 +70,9 @@ const render = (sourceData) => {
   .domain(varianceTreshold)
   .range(colors.reverse());
 
+  // Legend tick values
+  const legendTickValues = colorScale.domain().map(d => d + baseTemperature);
+
   // Margins 
   const margin = { top: 90, right: 20, bottom: 150, left: 120 };
 
@@ -131,9 +120,9 @@ const render = (sourceData) => {
     .attr('transform', `translate(120,${height - 100})`)
     .call(colorLegend, {
       colorScale,
-      treshold: varianceTreshold,
       height: 30,
       width: 300,
+      tickValues: legendTickValues,
       xDomain: varianceDomain
     });
 
@@ -152,6 +141,59 @@ const render = (sourceData) => {
       // Remove domain line
       .select('.domain').remove();
 
+  // Tooltip container
+  const tooltip = select('body').append('div')
+    .attr('id', 'tooltip')
+    .attr('class', 'tooltip')
+    .style('opacity', 0);
+
+  // Tooltip header 
+  const tooltipName = tooltip
+    .append('h3')
+    .attr('class', 'tooltip-name');
+  
+  // Tooltip details
+  const tooltipDetails = tooltip
+    .append('p')
+    .attr('class', 'tooltip-details');
+
+  // Mouse over handler
+  const handleMouseover = d => {
+
+    console.log(d3.event);
+    // Show tooltip transition
+    tooltip.transition()		
+      .duration(200)		
+      .style("opacity", .9);
+    
+    // Update name
+    tooltipName.html(`Hello`);
+
+    // Construct details
+    const details = [
+      "Co tam",
+      "Morda u Ciebie",
+      "Ebe"
+    ].join('<br>');
+    
+    // Update details
+    tooltipDetails.html(details);
+
+    // Tooltip position and value attr
+    tooltip
+      .attr('data-year', xValue(d))
+      
+      .style("left", (d3.event.clientX) + "px")		
+      .style("top", (d3.event.clientY - 150) + "px");
+  }
+  // Mouse out handler
+  const handleMouseout = () => {
+    tooltip.transition()		
+      .duration(500)		
+      .style("opacity", 0);	
+  }
+
+
   // Cells
   container.selectAll('rect').data(data).enter()
     .append('rect')
@@ -162,7 +204,11 @@ const render = (sourceData) => {
       // Position
       .attr('x', d => xScale(xValue(d)))
       .attr('y', d => yValue(d) * cellHeight)
-      .attr('fill', d => colorScale(vValue(d)));
+      // Fill
+      .attr('fill', d => colorScale(vValue(d)))
+      // Event handlers
+      .on('mouseover', handleMouseover)
+      .on('mouseout', handleMouseout);
 
   // Title
   container.append('text')
@@ -185,6 +231,7 @@ const colorLegend = (selection, props) => {
     colorScale,
     width,
     height,
+    tickValues,
     xDomain
   } = props;
 
