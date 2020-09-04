@@ -15,7 +15,7 @@ const {
   max,
 } = d3;
 
-const width = 1000;
+const width = 1400;
 const height = document.documentElement.clientHeight;
 
 const svg = select('svg')
@@ -40,23 +40,20 @@ const render = (sourceData) => {
   const innerHeight = height - margin.top - margin.bottom;
 
   // Bar dimensions
-  const barWidth = innerWidth / data.length;
+  const barWidth = innerWidth * 12 / data.length;
   const barHeight = innerHeight / 12;
 
   
   
 
-  const yAxisTickFormat = date => {
-    const parseMonth = timeParse('%m');
-    const parsedDate = parseMonth(date);
-    console.log(date);
-    return timeFormat('%B')(parsedDate);
-  }
+  
 
   // x scale
   const xScale = scaleTime()
     .domain(extent(data, xValue))
     .range([0, innerWidth]);
+
+  console.log(xScale(1760));
 
   // x axis
   const xAxis = axisBottom(xScale)
@@ -66,13 +63,19 @@ const render = (sourceData) => {
 
   // y scale
   const yScale = scaleBand()
-    .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+    .domain([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     .range([innerHeight, 0]);
 
-  // y axis
+  // Get month name
+  const yAxisTickFormat = monthNumber => {
+    const parseMonth = timeParse('%m');
+    const month = parseMonth(monthNumber);
+    return timeFormat('%B')(month);
+  }
+
+  // Y axis
   const yAxis = axisLeft(yScale)
-    .tickFormat(yAxisTickFormat)
-    .ticks(13)
+    .tickFormat(yAxisTickFormat);
 
   // Create group container inside svg
   const container = svg
@@ -83,13 +86,13 @@ const render = (sourceData) => {
   container.append('text')
     .attr('id', 'title')
     .attr('y', -60)
-    .text('Gross Domestic Product in United States');
+    .text('Monthly Global Land-Surface Temperature');
 
   // Sub title
   container.append('text')
     .attr('id', 'sub-title')
     .attr('y', -30)
-    .text('1947-01-01 - 2015-07-01');
+    .text('1753 - 2015: base temperature 8.66℃');
 
   // y axis
   const yAxisG = container.append('g').call(yAxis)

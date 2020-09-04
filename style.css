@@ -31,6 +31,13 @@ svg {
   margin: 0 auto;
 }
 
+rect {
+  fill: cornflowerblue;
+}
+
+rect:hover {
+  fill: crimson;
+}
 
 .line-path {
   fill: none;
