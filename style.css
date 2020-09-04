@@ -31,9 +31,9 @@ svg {
   margin: 10px auto;
 }
 
-.cell {
+/* .cell {
   fill: cornflowerblue;
-}
+} */
 
 .cell:hover {
   fill: crimson;

@@ -14,6 +14,8 @@ const {
   max,
 } = d3;
 
+const url = 'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json';
+
 const width = 1400;
 const height = document.documentElement.clientHeight;
 
@@ -59,7 +61,7 @@ const render = (sourceData) => {
     '#abd9e9', // blue - Light
     '#74add1', // blue - dark
     '#4575b4', // blue - very dark
-  ]
+  ];
 
   // Variance constants 
   const [minVariance, maxVariance] = extent(data, vValue);
@@ -80,7 +82,7 @@ const render = (sourceData) => {
   // Color scale
   const colorScale = scaleThreshold()
   .domain(varianceTreshold)
-  .range(colors);
+  .range(colors.reverse());
 
   // Margins 
   const margin = { top: 90, right: 20, bottom: 150, left: 120 };
@@ -158,10 +160,11 @@ const render = (sourceData) => {
       .attr('width', cellWidth)
       .attr('height', cellHeight)
       // Position
-      .attr('x', (d) => xScale(xValue(d)))
-      .attr('y', d => yValue(d) * cellHeight);
+      .attr('x', d => xScale(xValue(d)))
+      .attr('y', d => yValue(d) * cellHeight)
+      .attr('fill', d => colorScale(vValue(d)));
 
-    // Title
+  // Title
   container.append('text')
   .attr('id', 'title')
   .attr('class', 'title')
@@ -234,17 +237,23 @@ const colorLegend = (selection, props) => {
   //   .text('Percentage of stops that involved force');
 }
 
-
 // Fetch data
-json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json')
+json(url)
   .then(data => {
-    
+
+    // Fix months to represent each month in 0-11 format
     data.monthlyVariance.forEach(d => {
       d.month--;
     })
-
+    
     render(data);
   })
+  // Catch errors
+  .catch(error => {
+    console.log("Something went wrong when fetching the data. Error: ", error);
+  })
+
+
   
 
 
