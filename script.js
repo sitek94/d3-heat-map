@@ -94,9 +94,12 @@ const render = (sourceData) => {
     .attr('y', -30)
     .text('1753 - 2015: base temperature 8.66℃');
 
-  // y axis
+  // Y axis
   const yAxisG = container.append('g').call(yAxis)
-    .attr('id', 'y-axis');
+    .attr('id', 'y-axis')
+  
+  // Remove y axis domain line
+  yAxisG.select('.domain').remove();
 
   // y axis label
   yAxisG.append('text')
@@ -107,14 +110,15 @@ const render = (sourceData) => {
     .attr('transform', 'rotate(-90)')
     .text('GDP in Billions of Dollars');
 
-  // Append x axis
-  container.append('g').call(xAxis)
+  // X axis
+  const xAxisG = container.append('g').call(xAxis)
     .attr('transform', `translate(0,${innerHeight})`)
-    .attr('id', 'x-axis');
-
+    .attr('id', 'x-axis')
   
+  // Remove x axis domain line
+  xAxisG.select('.domain').remove();
 
-  // Append bars
+  // Bars
   container.selectAll('rect').data(data).enter()
     .append('rect')
       .attr('class', 'bar')
