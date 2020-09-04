@@ -128,6 +128,14 @@ const render = (sourceData) => {
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`);
 
+  const legendContainer = svg.append('g')
+    .attr('transform', `translate(1200,0)`)
+    .call(colorLegend, {
+      colorScale
+    });
+
+ 
+
   // Append y axis
   container.append('g').call(yAxis)
     .attr('id', 'y-axis')
@@ -169,6 +177,46 @@ const render = (sourceData) => {
     .text(description);
 };
 
+const colorLegend = (selection, props) => {
+  const {
+    colorScale
+  } = props;
+
+  const xScale = d3.scaleLinear()
+  .domain([0, 9])
+  .range([0, 240]);
+
+  const xAxis = d3.axisBottom(xScale)
+    .tickSize(13)
+    .tickValues(colorScale.domain())
+
+  const container = selection.append("g").call(xAxis);
+
+  container.select(".domain")
+    .remove();
+
+  container.selectAll("rect")
+  .data(colorScale.range().map(function(color) {
+    var d = colorScale.invertExtent(color);
+    if (d[0] == null) d[0] = xScale.domain()[0];
+    if (d[1] == null) d[1] = xScale.domain()[1];
+    return d;
+  }))
+  .enter().insert("rect", ".tick")
+    .attr("height", 8)
+    .attr("x", function(d) { return xScale(d[0]); })
+    .attr("width", 20)
+    .attr("fill", function(d) { return colorScale(d[0]); });
+
+  container.append("text")
+    .attr("fill", "#000")
+    .attr("font-weight", "bold")
+    .attr("text-anchor", "start")
+    .attr("y", -6)
+    .text("Percentage of stops that involved force");
+}
+
+
 // Fetch data
 json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json')
   .then(data => {
@@ -179,4 +227,7 @@ json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master
 
     render(data);
   })
-  .catch(error => console.log("Error while loading the data."));
+  
+
+
+ 
