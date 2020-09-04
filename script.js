@@ -77,16 +77,10 @@ const render = (sourceData) => {
     varianceTreshold.push(roundedValue);
   }
   
-
   // Color scale
   const colorScale = scaleThreshold()
   .domain(varianceTreshold)
   .range(colors);
-
-  console.log(colors);
-  console.log(varianceTreshold);
-  console.log(colorScale(minVariance));
-  console.log(colorScale(maxVariance));
 
   // Margins 
   const margin = { top: 90, right: 20, bottom: 150, left: 120 };
@@ -136,8 +130,8 @@ const render = (sourceData) => {
     .call(colorLegend, {
       colorScale,
       treshold: varianceTreshold,
-      legendHeight: 30,
-      legendWidth: 300,
+      height: 30,
+      width: 300,
       xDomain: varianceDomain
     });
 
@@ -182,53 +176,62 @@ const render = (sourceData) => {
     .text(description);
 };
 
+// Legend component
 const colorLegend = (selection, props) => {
   const {
     colorScale,
-    legendWidth,
-    legendHeight,
+    width,
+    height,
     xDomain
   } = props;
 
   // X scale
   const xScale = d3.scaleLinear()
   .domain(xDomain)
-  .range([0, legendWidth]);
+  .range([0, width]);
 
   // X axis
   const xAxis = axisBottom(xScale)
-    .tickSize(13)
+    .tickSize(40)
     .tickValues(colorScale.domain())
     .tickFormat(format('.2f'))
-    .tickPadding(30)
+    .tickPadding(10);
 
   // Append legend container to provided selection element
-  const container = selection.append("g").call(xAxis);
+  const container = selection.append('g').call(xAxis);
 
   // Remove domain line
-  container.select(".domain").remove();
+  container.select('.domain').remove();
 
-  container.selectAll("rect")
-    .data(colorScale.range().map(function(color) {
-      var d = colorScale.invertExtent(color);
+  // Construct dataset, important when working with threshold scales
+  const dataset = colorScale.range()
+    .map(color => {
+      // For each color I need to have an array of first and second number
+      // Sth like this [ [-6, -5], [-5, -4], [-4, -3], [-2, -1] ]
+      // Nice explanation of all this:
+      // https://stackoverflow.com/questions/48161257/understanding-invertextent-in-a-threshold-scale
+      const d = colorScale.invertExtent(color);
+
       if (d[0] == null) d[0] = xScale.domain()[0];
       if (d[1] == null) d[1] = xScale.domain()[1];
-      return d;
-    }))
-  .enter().insert("rect", ".tick")
-    .attr("height", 8)
-    .attr("x", function(d) { 
-      console.log(d);
-      return xScale(d[0]); })
-    .attr("width", function(d) { return xScale(d[1]) - xScale(d[0]); })
-    .attr("fill", function(d) { return colorScale(d[0]); });
 
-  // container.append("text")
-  //   .attr("fill", "#000")
-  //   .attr("font-weight", "bold")
-  //   .attr("text-anchor", "start")
-  //   .attr("y", -6)
-  //   .text("Percentage of stops that involved force");
+      return d;
+    });
+
+  container.selectAll('rect')
+    .data(dataset)
+  .enter().insert('rect', '.tick')
+    .attr('x', d => xScale(d[0]))
+    .attr('height', height)
+    .attr('width', d => xScale(d[1]) - xScale(d[0]))
+    .attr('fill', d => colorScale(d[0]));
+
+  // container.append('text')
+  //   .attr('fill', '#000')
+  //   .attr('font-weight', 'bold')
+  //   .attr('text-anchor', 'start')
+  //   .attr('y', -6)
+  //   .text('Percentage of stops that involved force');
 }
 
 
