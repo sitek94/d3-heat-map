@@ -99,11 +99,12 @@ const render = (sourceData) => {
   .domain([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
   .range([innerHeight, 0]);
 
-  // Get month name from a number
+  // Get month name
+  const parseMonth = timeParse('%m');
+
+  // Y axis tick formatter
   const yAxisTickFormat = monthNumber => {
-    const parseMonth = timeParse('%m');
-    const month = parseMonth(monthNumber);
-    return timeFormat('%B')(month);
+    return timeFormat('%B')(parseMonth(monthNumber));
   }
 
   // Y axis
@@ -146,11 +147,6 @@ const render = (sourceData) => {
     .attr('id', 'tooltip')
     .attr('class', 'tooltip')
     .style('opacity', 0);
-
-  // Tooltip header 
-  const tooltipName = tooltip
-    .append('h3')
-    .attr('class', 'tooltip-name');
   
   // Tooltip details
   const tooltipDetails = tooltip
@@ -159,32 +155,38 @@ const render = (sourceData) => {
 
   // Mouse over handler
   const handleMouseover = d => {
-
-    console.log(d3.event);
+    
     // Show tooltip transition
     tooltip.transition()		
       .duration(200)		
       .style("opacity", .9);
-    
-    // Update name
-    tooltipName.html(`Hello`);
+
+    // Destructure details from d
+    let { year, month, variance } = d;
+    // Calculate temperature and variance
+    const temp = Math.round((baseTemperature + variance) * 10) / 10;
+    variance = Math.round(variance * 10) / 10;
 
     // Construct details
     const details = [
-      "Co tam",
-      "Morda u Ciebie",
-      "Ebe"
+      `${year} - ${yAxisTickFormat(month)}`,
+      `Temp: ${temp}℃`,
+      `Variance: ${variance}℃`,
     ].join('<br>');
     
     // Update details
     tooltipDetails.html(details);
 
+    // Get x and y and create y offset
+    const { x, y } = d3.event;
+    const yOffset = -120;
+
     // Tooltip position and value attr
     tooltip
       .attr('data-year', xValue(d))
       
-      .style("left", (d3.event.clientX) + "px")		
-      .style("top", (d3.event.clientY - 150) + "px");
+      .style("left", x + "px")		
+      .style("top", y + yOffset + "px");
   }
   // Mouse out handler
   const handleMouseout = () => {
@@ -192,7 +194,6 @@ const render = (sourceData) => {
       .duration(500)		
       .style("opacity", 0);	
   }
-
 
   // Cells
   container.selectAll('rect').data(data).enter()
@@ -208,7 +209,7 @@ const render = (sourceData) => {
       .attr('fill', d => colorScale(vValue(d)))
       // Event handlers
       .on('mouseover', handleMouseover)
-      .on('mouseout', handleMouseout);
+      .on('mouseout', handleMouseout)
 
   // Title
   container.append('text')
