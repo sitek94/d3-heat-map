@@ -79,7 +79,7 @@ text {
 
 .tooltip {
   position: absolute;
-  max-width: 300px;
+  width: 150px;
   padding: 10px;
   border-radius: 6px;
   color: var(--white);

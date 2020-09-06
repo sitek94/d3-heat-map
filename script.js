@@ -74,7 +74,7 @@ const render = (sourceData) => {
   const legendTickValues = colorScale.domain().map(d => d + baseTemperature);
 
   // Margins 
-  const margin = { top: 90, right: 20, bottom: 150, left: 120 };
+  const margin = { top: 90, right: 100, bottom: 150, left: 120 };
 
   // Inner dimensions
   const innerWidth = width - margin.left - margin.right;
@@ -166,15 +166,17 @@ const render = (sourceData) => {
     // Update details
     tooltipDetails.html(details);
 
-    // Get x and y and create y offset
-    const { x, y } = d3.event;
+    // Get constants to construct tooltip position
+    const { pageX, pageY } = d3.event;
+    const { scrollLeft, offsetLeft } =  document.body;
     const yOffset = -120;
+    const xOffset = scrollLeft + offsetLeft;
 
-    // Tooltip position and value attr
+    // Update tooltip position and data-year
     tooltip
       .attr('data-year', xValue(d))
-      .style("left", x + "px")		
-      .style("top", y + yOffset + "px");
+      .style("left", pageX + xOffset + "px")		
+      .style("top", pageY + yOffset + "px");
   }
   // Mouse out handler
   const handleMouseout = () => {
