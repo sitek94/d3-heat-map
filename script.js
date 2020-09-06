@@ -116,17 +116,6 @@ const render = (sourceData) => {
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`);
 
-  // Append legend
-  svg.append('g')
-    .attr('transform', `translate(120,${height - 100})`)
-    .call(colorLegend, {
-      colorScale,
-      height: 30,
-      width: 300,
-      tickValues: legendTickValues,
-      xDomain: varianceDomain
-    });
-
   // Append y axis
   container.append('g').call(yAxis)
     .attr('id', 'y-axis')
@@ -227,6 +216,18 @@ const render = (sourceData) => {
     .attr('class', 'description')
     .attr('y', -30)
     .text(description);
+
+  // Append legend
+  svg.append('g')
+    .attr('id', 'legend')
+    .attr('transform', `translate(120,${height - 100})`)
+    .call(colorLegend, {
+      colorScale,
+      height: 30,
+      width: 300,
+      tickValues: legendTickValues,
+      xDomain: varianceDomain
+    });
 };
 
 // Legend component
@@ -235,7 +236,6 @@ const colorLegend = (selection, props) => {
     colorScale,
     width,
     height,
-    tickValues,
     xDomain
   } = props;
 
