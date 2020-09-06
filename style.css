@@ -7,8 +7,8 @@
   --gray-10: #F5F3F2;
   --gray-15: #e4e4e3;
   --gray-20: #C0C0BB;
-  --gray-30: var(--gray-30);
-  --gray-40: var(--gray-40);
+  --gray-30: #8E8883;
+  --gray-40: #635F5D; 
 }
 
 * {
@@ -30,12 +30,14 @@ svg {
   margin: 10px auto;
 }
 
+/* CELL */
 .cell:hover {
   stroke: var(--black);
   stroke-opacity: .5;
   fill: var(--color-hover);
 }
 
+/* TICK */
 .tick text {
   font-size: 1.2em;
   fill: var(--gray-40);
@@ -45,21 +47,25 @@ svg {
   stroke: var(--gray-20);
 }
 
+/* AXIS */
 .axis-label {
   font-size: 5em;
   fill: var(--gray-30);
 }
 
+/* TITLE */
 .title {
   font-size: 1.8em;
   fill: var(--gray-40);
 }
 
+/* DESCRIPTION */
 .description {
   font-size: 1.5em;
   fill: var(--gray-30);
 }
 
+/* TOOLTIP */
 .tooltip {
   position: absolute;
   width: 150px;
