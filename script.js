@@ -96,7 +96,7 @@ const render = (sourceData) => {
 
   // Y scale
   const yScale = scaleBand()
-  .domain([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+  .domain([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reverse())
   .range([innerHeight, 0]);
 
   // Get month name
@@ -161,17 +161,17 @@ const render = (sourceData) => {
       .duration(200)		
       .style("opacity", .9);
 
-    // Destructure details from d
-    let { year, month, variance } = d;
-    // Calculate temperature and variance
-    const temp = Math.round((baseTemperature + variance) * 10) / 10;
-    variance = Math.round(variance * 10) / 10;
+    // Format details
+    const { year, month, variance } = d;
+    const roundedTemperature = Math.round((baseTemperature + variance) * 10) / 10;
+    const roundedVariance = Math.round(variance * 10) / 10;
+    const formattedMonth = yAxisTickFormat(month);
 
-    // Construct details
+    // Construct details string
     const details = [
-      `${year} - ${yAxisTickFormat(month)}`,
-      `Temp: ${temp}℃`,
-      `Variance: ${variance}℃`,
+      `${year} - ${formattedMonth}`,
+      `Temp: ${roundedTemperature}℃`,
+      `Variance: ${roundedVariance}℃`,
     ].join('<br>');
     
     // Update details
@@ -184,7 +184,6 @@ const render = (sourceData) => {
     // Tooltip position and value attr
     tooltip
       .attr('data-year', xValue(d))
-      
       .style("left", x + "px")		
       .style("top", y + yOffset + "px");
   }
@@ -199,6 +198,10 @@ const render = (sourceData) => {
   container.selectAll('rect').data(data).enter()
     .append('rect')
       .attr('class', 'cell')
+        // Data attributes
+      .attr('data-year', xValue)
+      .attr('data-month', yValue)
+      .attr('data-temp', d => vValue(d) + baseTemperature)
       // Dimensions
       .attr('width', cellWidth)
       .attr('height', cellHeight)
