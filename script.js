@@ -281,13 +281,6 @@ const colorLegend = (selection, props) => {
     .attr('height', height)
     .attr('width', d => xScale(d[1]) - xScale(d[0]))
     .attr('fill', d => colorScale(d[0]));
-
-  // container.append('text')
-  //   .attr('fill', '#000')
-  //   .attr('font-weight', 'bold')
-  //   .attr('text-anchor', 'start')
-  //   .attr('y', -6)
-  //   .text('Percentage of stops that involved force');
 }
 
 // Fetch data
