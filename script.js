@@ -15,9 +15,10 @@ const {
 const url = 'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json';
 
 const width = 1400;
-const height = document.documentElement.clientHeight;
+const height = 700;
 
 const svg = select('svg')
+  .attr('viewBox', `0 0 ${width} ${height}`)
   .attr('height', height)
   .attr('width', width);
 

@@ -18,11 +18,17 @@
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;  
+  font-family: Arial, Helvetica, sans-serif;
+}
 
-  height: 100vh;
+#root {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow-x: auto;
   overflow-y: hidden;
+  background-color: var(--gray-10);
 }
 
 svg {
